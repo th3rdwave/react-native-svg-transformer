@@ -25,12 +25,12 @@ const defaultSvgrConfig = {
   }
 };
 
-module.exports.transform = function svgTransformer({ src, filename, options }) {
+function transform({ src, filename, options }) {
   if (filename.endsWith(".svg")) {
     const config = resolveConfig.sync(resolveConfigDir(filename));
     const svgrConfig =
       config != null ? { ...defaultSvgrConfig, ...config } : defaultSvgrConfig;
-    const jsCode = svgr.sync(src, svgrConfig);
+    const jsCode = svgr.sync(src, svgrConfig, { filePath: filename });
     return upstreamTransformer.transform({
       src: jsCode,
       filename,
@@ -38,4 +38,9 @@ module.exports.transform = function svgTransformer({ src, filename, options }) {
     });
   }
   return upstreamTransformer.transform({ src, filename, options });
+}
+
+module.exports = {
+  transform,
+  getCacheKey: upstreamTransformer.getCacheKey
 };
